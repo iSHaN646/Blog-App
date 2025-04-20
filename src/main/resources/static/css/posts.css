@@ -1,0 +1,282 @@
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    margin: 0;
+    padding: 30px;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #1d3557;
+}
+
+.post-card {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid black;
+}
+
+.post-card h2 {
+    color: #1d72b8;
+    margin-bottom: 10px;
+}
+
+.post-card p {
+    margin: 5px 0;
+    line-height: 1.6;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    font-size: 14px;
+    padding: 4px 8px;
+    margin-right: 5px;
+    border-radius: 4px;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.page-info {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.pagination-buttons a {
+    padding: 8px 16px;
+    text-decoration: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination-buttons a:hover {
+    background-color: #0056b3;
+}
+
+.pagination-buttons a:disabled,
+.pagination-buttons a[disabled] {
+    background-color: #cccccc;
+    pointer-events: none;
+}
+
+.create-post {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #218838;
+}
+.delete{
+    background-color: red;
+}
+
+#tagDiv{
+    color:blue;
+    display:flex;
+    gap:0.7em;
+}
+
+/* Sort Form */
+form#sortForm {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+form#sortForm label {
+    font-weight: bold;
+    color: #1d3557;
+}
+
+form#sortForm select {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    background-color: #f8f9fa;
+    transition: border-color 0.3s ease;
+}
+
+form#sortForm select:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+form#sortForm button {
+    padding: 8px 14px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form#sortForm button:hover {
+    background-color: #5a6268;
+}
+.sort-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1em;
+    margin-bottom: 20px;
+}
+
+.sort-form label {
+    font-weight: bold;
+    color: #333;
+}
+
+.sort-form select,
+.sort-form button {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.sort-form select:focus,
+.sort-form button:focus {
+    outline: none;
+    border-color: #007BFF;
+}
+.author-select {
+  padding: 6px 10px;
+  font-size: 16px;
+  margin-left: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #333;
+}
+
+.author-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 3px #007bff;
+}
+
+#author{
+    margin-left:2em;
+}
+
+select[multiple] {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+
+/* Flex wrapper for main layout */
+.container-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 30px;
+}
+
+/* Main content area */
+.container {
+  flex: 1;
+}
+
+/* Sidebar styling */
+.sidebar {
+  order:2;
+  width: 250px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 30px;
+  height: fit-content;
+}
+
+/* Checkbox label styling */
+.sidebar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Checkbox spacing */
+.sidebar input[type="checkbox"] {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+/* Heading in sidebar */
+.sidebar > label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #111;
+}
+
+
+.date-range-filter {
+  display: flex;
+  gap: 2em;
+  margin-top: 20px;
+  align-items:center;
+}
+
+.date-range-filter label {
+  font-weight: 500;
+}
+
+.date-range-filter input[type="date"] {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}

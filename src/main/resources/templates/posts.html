@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>All Blog Posts</title>
+  <link rel="stylesheet" th:href="@{/css/posts.css}" />
+</head>
+<body>
+<div class="container-wrapper">
+<!-- Sidebar for Tag Filters -->
+<div class="sidebar" style="width: 250px;">
+  <form method="get" id="tagFilterForm">
+    <!-- Preserve other filters -->
+    <input type="hidden" name="start" th:value="${start}" />
+    <input type="hidden" name="limit" th:value="${limit}" />
+    <input type="hidden" name="sortField" th:value="${sortField}" />
+    <input type="hidden" name="order" th:value="${order}" />
+    <input type="hidden" name="authorName" th:value="${authorName}" />
+    <input type="hidden" name="from" th:value="${from}" />
+    <input type="hidden" name="to" th:value="${to}" />
+
+    <label style="font-weight: bold;">Filter by Tags:</label>
+    <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 10px;"
+         th:each="tag : ${allTags}">
+      <label>
+        <input type="checkbox" name="tagId"
+               th:value="${tag.id}"
+               th:checked="${tagIds != null and tagIds.contains(tag.id)}"
+               onchange="document.getElementById('tagFilterForm').submit()" />
+        <span th:text="${tag.name}"></span>
+      </label>
+    </div>
+  </form>
+</div>
+<div class="container">
+  <h1>Blog Posts</h1>
+  <div class="create-post">
+    <a th:href="@{posts/create}" class="btn">+ Create New Post</a>
+  </div>
+
+  <!-- Sort + Filter Form -->
+  <form method="get" id="sortForm" class="sort-form">
+    <input type="hidden" name="start" th:value="${start}" />
+    <input type="hidden" name="limit" th:value="${limit}" />
+
+    <label for="sortField">Sort by:</label>
+    <select name="sortField" id="sortField" onchange="document.getElementById('sortForm').submit()">
+      <option value="createdAt" th:selected="${sortField == 'createdAt'}">Created At</option>
+      <option value="updatedAt" th:selected="${sortField == 'updatedAt'}">Updated At</option>
+      <option value="publishedAt" th:selected="${sortField == 'publishedAt'}">Published At</option>
+    </select>
+
+    <input type="hidden" name="order" th:value="${order}" id="orderInput" />
+    <button type="button" onclick="toggleOrder()"> <span id="orderLabel" th:text="(${order}=='desc') ? 'Oldest' : 'Newest'"></span></button>
+
+    <!-- Author Filter Dropdown -->
+    <label id="author" for="authorName">Author:</label>
+    <select name="authorName" id="authorName" onchange="document.getElementById('sortForm').submit()" class="author-select">
+      <option value="">All Authors</option>
+      <option th:each="author : ${allAuthors}"
+              th:value="${author}"
+              th:text="${author}"
+              th:selected="${author == authorName}">
+      </option>
+    </select>
+    <!-- Date Range Filter -->
+    <div class="date-range-filter" style="margin-top: 15px;">
+      <label for="fromDate">From:</label>
+      <input type="date" id="fromDate" name="from"
+             th:value="${from}" onchange="document.getElementById('sortForm').submit()" />
+
+      <label for="toDate">To:</label>
+      <input type="date" id="toDate" name="to"
+             th:value="${to}" onchange="document.getElementById('sortForm').submit()" />
+    </div>
+  </form>
+
+  <script>
+    function toggleOrder() {
+      const orderInput = document.getElementById("orderInput");
+      const orderLabel = document.getElementById("orderLabel");
+      orderInput.value = orderInput.value === "asc" ? "desc" : "asc";
+      orderLabel.textContent = orderInput.value === "asc" ? "Newest" : "Oldest";
+      document.getElementById("sortForm").submit();
+    }
+  </script>
+
+  <div th:if="${posts.size() == 0}">
+    <p>No posts available.</p>
+  </div>
+
+  <div th:each="post : ${posts}">
+    <div class="post-card">
+      <h2><a th:href="@{'/posts/' + ${post.id}}" th:text="${post.title}">Post Title</a></h2>
+      <p th:text="${post.excerpt}">Excerpt here...</p>
+      <p>
+        <strong>Author:</strong> <span th:text="${post.author}"></span> |
+        <strong>Published:</strong> <span th:text="${@dateUtils.format(post.publishedAt)}"></span>
+      </p>
+      <div id="tagDiv" th:if="${post.postTags.size() != 0}">
+        <label>Tags:</label>
+        <div th:each="postTag : ${post.postTags}">
+          <span th:text="${postTag.tag.name}"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <div class="page-info">
+      Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
+    </div>
+
+    <div class="pagination-buttons">
+      <a th:if="${currentPage > 0}"
+         th:href="@{'/posts?start=' + ${(currentPage - 1) * limit + 1}
+              + '&limit=' + ${limit}
+              + '&sortField=' + ${sortField}
+              + '&order=' + ${order}
+              + ${authorName != null ? '&authorName=' + authorName : ''}}
+                 + ${from != null ? '&from=' + from : ''}
+              + ${to != null ? '&to=' + to : ''}"
+         class="pagination-btn">Previous</a>
+
+      <a th:if="${currentPage < totalPages - 1}"
+         th:href="@{'/posts?start=' + ${(currentPage + 1) * limit + 1}
+            + '&limit=' + ${limit}
+            + '&sortField=' + ${sortField}
+            + '&order=' + ${order}
+            + ${authorName != null ? '&authorName=' + authorName : ''}
+             + ${tagParamString}}
+            + ${from != null ? '&from=' + from : ''}
+            + ${to != null ? '&to=' + to : ''}"
+         class="pagination-btn">Next</a>
+
+    </div>
+  </div>
+</div>
+</div>
+
+</body>
+</html>

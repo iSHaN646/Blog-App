@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${post.title}">Post Detail</title>
+  <link rel="stylesheet" th:href="@{/css/postDetail.css}" />
+  <script>
+    function showUpdateField(commentId) {
+      document.getElementById('update-form-' + commentId).style.display = 'block';
+    }
+    function hideUpdateField(commentId) {
+      document.getElementById('update-form-' + commentId).style.display = 'none';
+    }
+  </script>
+</head>
+<body>
+<div class="detail-container">
+  <div id="detailsBtns">
+  <span class="update-post">
+        <a th:href="@{'edit/' + ${post.id}}" class="btn">Update Post</a>
+      </span>
+  <span class="delete-post">
+        <a th:href="@{'delete/' + ${post.id}}" class="btn delete"
+           onclick="if (!(confirm('Delete the Post'))) return false">Delete Post</a>
+      </span>
+  </div>
+  <h1 th:text="${post.title}">Post Title</h1>
+
+  <div class="meta">
+    <p><strong>Author:</strong> <span th:text="${post.author}"></span></p>
+    <p><strong>Published At:</strong> <span th:text="${@dateUtils.format(post.publishedAt)}"></span></p>
+  </div>
+  <div id="tagDiv" th:if="${allTags.size()!=0}">
+    <label>Tags:</label>
+    <div  th:each="tag : ${allTags}">
+      <span th:text="${tag.name}"></span>
+    </div>
+  </div>
+  <div class="excerpt">
+    <p th:text="${post.excerpt}">Excerpt here...</p>
+  </div>
+
+  <div class="content">
+    <p th:text="${post.content}">Full content here...</p>
+  </div>
+  <hr/>
+
+  <div class="comment-section">
+    <h3>Comments</h3>
+    <div th:if="${post.comments.size() == 0}">
+      <p>No comments yet. Be the first to comment!</p>
+    </div>
+
+    <div th:each="comment : ${post.comments}" class="comment-box">
+      <p><strong th:text="${comment.name}">Name</strong> |
+        <span th:text="${@dateUtils.format(comment.updatedAt)}">Date</span></p>
+     <p th:text="${comment.comment}">Comment text...</p>
+
+      <div class="buttons">
+      <a type="button" class="btn" th:attr="onclick='showUpdateField(' + ${comment.id} + ')'"><!-- Update Button -->
+        Update
+      </a>
+      <a th:href="@{'/posts/' + ${post.id} + '/comments/' + ${comment.id} + '/delete'}" class="btn delete"
+         onclick="if (!(confirm('Delete the Comment'))) return false">Delete</a>
+      </div>
+      <form th:id="'update-form-' + ${comment.id}" th:action="@{'/posts/' + ${post.id} + '/comments/' + ${comment.id} + '/update'}" method="post" style="display:none;">
+        <textarea  id="updateText" rows="4"  th:name="updatedComment" th:text="${comment.comment}" required ></textarea> <br/>
+        <button type="submit">Submit</button>
+        <button type="button" th:attr="onclick='hideUpdateField(' + ${comment.id} + ')'"><!-- Cancel Button -->
+          Cancel
+        </button>
+      </form>
+    </div>
+
+    <h3>Leave a Comment</h3>
+    <form th:action="@{'/posts/' + ${post.id} + '/comments'}" th:object="${commentObj}" method="post" class="comment-form">
+      <label for="name">Name:</label>
+      <input type="text" th:field="*{name}" id="name" required>
+
+      <label for="email">Email:</label>
+      <input type="email" th:field="*{email}" id="email" required>
+
+      <label for="commentText">Comment:</label>
+      <textarea th:field="*{comment}" id="commentText" rows="4" required></textarea>
+
+      <button type="submit" class="btn">Submit Comment</button>
+    </form>
+  </div>
+
+  <div class="back-link">
+    <a th:href="@{/posts}">← Back to Posts</a>
+  </div>
+</div>
+</body>
+</html>
