@@ -12,56 +12,35 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post,Long> {
+public interface PostRepository extends JpaRepository<Post, Long> {
+
     Page<Post> findAll(Pageable pageable);
-    Page<Post> findByAuthor(String authorName, Pageable pageable);
-
-    @Query("SELECT DISTINCT p FROM Post p JOIN p.postTags pt " +
-            "WHERE p.author = :author " +
-            "AND pt.tag.id IN :tagIds " +
-            "AND p.publishedAt BETWEEN :from AND :to")
-    Page<Post> findByAuthorAndTagsAndPublishedAtBetween(
-            @Param("author") String author,
-            @Param("tagIds") List<Long> tagIds,
-            @Param("from") LocalDateTime from,
-            @Param("to") LocalDateTime to,
-            Pageable pageable);
-
-    @Query("SELECT p FROM Post p " +
-            "WHERE p.publishedAt BETWEEN :from AND :to")
-    Page<Post> findByPublishedAtBetween(
-            @Param("from") LocalDateTime from,
-            @Param("to") LocalDateTime to,
-            Pageable pageable);
-
-
-    @Query("SELECT DISTINCT p FROM Post p JOIN p.postTags pt " +
-            "WHERE pt.tag.id IN :tagIds " +
-            "AND p.publishedAt BETWEEN :from AND :to")
-    Page<Post> findByTagsAndPublishedAtBetween(
-            @Param("tagIds") List<Long> tagIds,
-            @Param("from") LocalDateTime from,
-            @Param("to") LocalDateTime to,
-            Pageable pageable);
-
-
-    @Query("SELECT p FROM Post p " +
-            "WHERE p.author = :author " +
-            "AND p.publishedAt BETWEEN :from AND :to")
-    Page<Post> findByAuthorAndPublishedAtBetween(
-            @Param("author") String author,
-            @Param("from") LocalDateTime from,
-            @Param("to") LocalDateTime to,
-            Pageable pageable);
-
 
     @Query("SELECT DISTINCT p.author FROM Post p WHERE p.author IS NOT NULL")
     List<String> findAllDistinctAuthors();
 
-    @Query("SELECT p FROM Post p JOIN p.postTags pt WHERE p.author = :authorName AND pt.tag.id IN :tagIds")
-    Page<Post> findByAuthorAndTagsIn(String authorName, List<Long> tagIds, Pageable pageable);
-
-    @Query("SELECT DISTINCT p FROM Post p JOIN p.postTags pt WHERE pt.tag.id IN :tagIds")
-    Page<Post> findDistinctByTagsIn(List<Long> tagIds, Pageable pageable);
+    @Query("""
+    SELECT p FROM Post p
+    LEFT JOIN p.postTags pt
+    LEFT JOIN pt.tag t
+    WHERE (:search IS NULL OR LOWER(p.title) LIKE %:search% OR LOWER(p.content) LIKE %:search%
+     OR LOWER(p.excerpt) LIKE %:search% OR LOWER(p.author) LIKE %:search%
+     OR LOWER(t.name) LIKE %:search%)
+    AND (CAST(:fromDateTime as timestamp) IS NULL OR p.publishedAt >= :fromDateTime)
+    AND (CAST(:toDateTime as timestamp)  IS NULL OR p.publishedAt <= :toDateTime)
+    AND (:authorNames IS NULL OR p.author IN :authorNames)
+    AND (:tagIds IS NULL OR t.id IN :tagIds)
+    GROUP BY p.id
+    HAVING (:tagIds IS NULL OR COUNT(DISTINCT t.id) = :tagCount)
+""")
+    Page<Post> findFilteredPostsWithAllTags(
+            @Param("authorNames") List<String> authorNames,
+            @Param("tagIds") List<Long> tagIds,
+            @Param("tagCount") int tagCount,
+            @Param("fromDateTime") LocalDateTime fromDateTime,
+            @Param("toDateTime") LocalDateTime toDateTime,
+            @Param("search") String search,
+            Pageable pageable
+    );
 
 }

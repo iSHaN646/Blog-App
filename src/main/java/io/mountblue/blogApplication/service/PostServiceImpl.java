@@ -11,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,9 +56,9 @@ public class PostServiceImpl implements PostService{
                     newTagId = tag.getId();
                 }
             }
+        postTagService.addTagToPost(post.getId(), newTagId);
         }
         postRepository.save(post);
-        postTagService.addTagToPost(post.getId(), newTagId);
     }
 
     @Override
@@ -117,46 +119,63 @@ public class PostServiceImpl implements PostService{
         return postRepository.findAll(pageable);
     }
 
-    @Override
-    public Page<Post> getPaginatedPostsByAuthor(String authorName, Pageable pageable) {
-        return postRepository.findByAuthor(authorName, pageable);
-    }
 
     @Override
     public List<String> getAllDistinctAuthors() {
         return postRepository.findAllDistinctAuthors();
     }
 
-    public Page<Post> getPaginatedPostsByAuthorAndTags(String authorName, List<Long> tagIds, Pageable pageable) {
-        return postRepository.findByAuthorAndTagsIn(authorName, tagIds, pageable);
-    }
 
-    @Override
-    public Page<Post> getPaginatedPostsByTags(List<Long> tagIds, Pageable pageable) {
-        if (tagIds == null || tagIds.isEmpty()) {
-            return postRepository.findAll(pageable);
+
+
+    public Page<Post> getFilteredPosts(
+            List<String> authorNames,
+            List<Long> tagIds,
+            LocalDate from,
+            LocalDate to,
+            String search,
+            Pageable pageable
+    ) {
+        // Check if all filters are null or empty → fall back to findAll
+        boolean noFilters =
+                (authorNames == null || authorNames.isEmpty()) &&
+                        (tagIds == null || tagIds.isEmpty()) &&
+                        from == null &&
+                        to == null &&
+                        (search == null || search.trim().isEmpty());
+
+        if (noFilters) {
+            return getPaginatedPosts(pageable);  // fallback to normal pagination
         }
-        return postRepository.findDistinctByTagsIn(tagIds, pageable);
+        // Convert LocalDate to LocalDateTime
+        LocalDateTime fromDateTime = (from != null) ? from.atStartOfDay() : null;
+        LocalDateTime toDateTime = (to != null) ? to.atTime(LocalTime.MAX) : null;
+
+        // Calculate tagCount if tagIds is provided, otherwise set to null
+        int tagCount = (tagIds != null && !tagIds.isEmpty()) ? (int) tagIds.size() : 0;
+
+        // Format search string if it's provided, otherwise set to null
+        String formattedSearch = (search != null && !search.trim().isEmpty()) ? search.trim().toLowerCase() : null;
+
+        // Filter authorNames and tagIds, set to empty list if empty, null if null
+        List<String> filteredAuthorNames = (authorNames != null && !authorNames.isEmpty()) ? authorNames : null;
+        List<Long> filteredTagIds = (tagIds != null && !tagIds.isEmpty()) ? tagIds : null;
+
+        // Call repository method with only non-null parameters
+        return postRepository.findFilteredPostsWithAllTags(
+                filteredAuthorNames,
+                filteredTagIds,
+                tagCount,
+                fromDateTime,
+                toDateTime,
+                formattedSearch,
+                pageable
+        );
     }
 
-    @Override
-    public Page<Post> getPostsByAuthorTagsAndDateRange(String author, List<Long> tagIds, LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return postRepository.findByAuthorAndTagsAndPublishedAtBetween(author, tagIds, from, to, pageable);
-    }
 
-    @Override
-    public Page<Post> getPostsByAuthorAndDateRange(String author, LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return postRepository.findByAuthorAndPublishedAtBetween(author, from, to, pageable);
-    }
 
-    @Override
-    public Page<Post> getPostsByTagsAndDateRange(List<Long> tagIds, LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return postRepository.findByTagsAndPublishedAtBetween(tagIds, from, to, pageable);
-    }
 
-    @Override
-    public Page<Post> getPostsByDateRange(LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return postRepository.findByPublishedAtBetween(from, to, pageable);
-    }
+
 
 }

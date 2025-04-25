@@ -9,7 +9,7 @@
 <div class="container">
     <h1 th:text="${post.getId() != null} ? 'Edit Post' : 'Create New Post'"></h1>
 
-    <form th:action="(${post.getId() != null}) ? @{/posts/update} : @{/posts/add}" th:object="${post}" method="post">
+    <form th:action="${post.id} != null ? @{/update} : @{/add}" th:object="${post}" method="post">
         <input type="hidden" th:if="${post.id}" th:field="*{id}" />
 
         <div>
@@ -28,8 +28,9 @@
         </div>
 
         <div>
-            <label for="author">Author:</label>
-            <input type="text" id="author" th:field="*{author}" required />
+            <label>Author:</label>
+            <input th:if="${loggedInUser.role!='ADMIN'}" type="text"  name="author" th:value="${loggedInUser.userName}" readonly />
+            <input th:if="${loggedInUser.role=='ADMIN'}" type="text"  name="author" th:value="${post.author}"  />
         </div>
 
         <div>
@@ -39,7 +40,7 @@
 
         <div>
             <button type="submit">Submit</button>
-            <a th:href="(${post.id != null}) ? @{'/posts/' + ${post.id}} : @{/posts}">Cancel</a>
+            <a th:href="(${post.id != null}) ? @{'/post' + ${post.id}} : @{/}">Cancel</a>
         </div>
     </form>
 </div>

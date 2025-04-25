@@ -15,7 +15,7 @@
 </head>
 <body>
 <div class="detail-container">
-  <div id="detailsBtns">
+  <div th:if="${loggedInUser!=null && ((loggedInUser.userName==post.author) || (loggedInUser.role=='ADMIN'))}" id="detailsBtns">
   <span class="update-post">
         <a th:href="@{'edit/' + ${post.id}}" class="btn">Update Post</a>
       </span>
@@ -56,7 +56,7 @@
         <span th:text="${@dateUtils.format(comment.updatedAt)}">Date</span></p>
      <p th:text="${comment.comment}">Comment text...</p>
 
-      <div class="buttons">
+      <div th:if="${loggedInUser!=null && ((loggedInUser.email==comment.email) || (loggedInUser.role=='ADMIN'))}" class="buttons">
       <a type="button" class="btn" th:attr="onclick='showUpdateField(' + ${comment.id} + ')'"><!-- Update Button -->
         Update
       </a>
@@ -75,10 +75,19 @@
     <h3>Leave a Comment</h3>
     <form th:action="@{'/posts/' + ${post.id} + '/comments'}" th:object="${commentObj}" method="post" class="comment-form">
       <label for="name">Name:</label>
-      <input type="text" th:field="*{name}" id="name" required>
+      <input type="text"
+             name="name"
+             th:value="${loggedInUser != null ? loggedInUser.userName : ''}"
+             id="name"
+             required>
+
 
       <label for="email">Email:</label>
-      <input type="email" th:field="*{email}" id="email" required>
+      <input type="text"
+             name="email"
+             th:value="${loggedInUser != null ? loggedInUser.email : ''}"
+             id="email"
+             required>
 
       <label for="commentText">Comment:</label>
       <textarea th:field="*{comment}" id="commentText" rows="4" required></textarea>
@@ -88,7 +97,7 @@
   </div>
 
   <div class="back-link">
-    <a th:href="@{/posts}">← Back to Posts</a>
+    <a th:href="@{/}">← Back to Posts</a>
   </div>
 </div>
 </body>
