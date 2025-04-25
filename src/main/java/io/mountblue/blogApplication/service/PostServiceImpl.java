@@ -32,13 +32,14 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public void createPost(Post post,String newTags) {
+    public void createPost(Post post, String newTags) {
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
         post.setPublished(true);
 
-        Long newTagId = 0L;
+        postRepository.save(post); // Save first to generate the ID
+
         if (newTags != null && !newTags.trim().isEmpty()) {
             String[] tagNames = newTags.split(",");
             for (String name : tagNames) {
@@ -53,13 +54,13 @@ public class PostServiceImpl implements PostService{
                                 newTag.setUpdatedAt(LocalDateTime.now());
                                 return tagRepository.save(newTag);
                             });
-                    newTagId = tag.getId();
+                    Long newTagId = tag.getId();
+                    postTagService.addTagToPost(post.getId(), newTagId); // now post.getId() is valid
                 }
             }
-        postTagService.addTagToPost(post.getId(), newTagId);
         }
-        postRepository.save(post);
     }
+
 
     @Override
     public void deletePost(Long id) {
