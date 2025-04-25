@@ -33,7 +33,7 @@ public class CommentController {
         Post post = postService.getPost(postId);
         comment.setPost(post);
         commentService.createComment(comment);
-        post.addComments(comment);
+       // post.addComments(comment);
         return "redirect:/post" + postId;
     }
 
