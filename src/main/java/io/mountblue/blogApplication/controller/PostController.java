@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.Set;
 
 @Controller
-@RequestMapping("/")
 public class PostController {
 
     private final PostService postService;
@@ -130,7 +129,7 @@ public class PostController {
         return "postDetail";
     }
 
-    @GetMapping
+    @GetMapping("/")
     public String listPosts(
             @RequestParam(defaultValue = "1") int start,
             @RequestParam(defaultValue = "3") int limit,
