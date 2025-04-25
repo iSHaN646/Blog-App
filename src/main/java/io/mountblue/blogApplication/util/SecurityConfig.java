@@ -17,9 +17,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig  {
+public class SecurityConfig {
 
-     private UserService userService;
+    private final UserService userService;
 
     public SecurityConfig(UserService userService) {
         this.userService = userService;
@@ -31,17 +31,13 @@ public class SecurityConfig  {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-
-    @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+
         return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .authenticationProvider(authenticationProvider())
+                .authenticationProvider(authenticationProvider)
                 .build();
     }
 
@@ -59,7 +55,6 @@ public class SecurityConfig  {
                                 "/adduser"
                         ).permitAll()
                         .requestMatchers(
-                                "/",
                                 "/newpost",
                                 "/edit/**",
                                 "/delete/**",
@@ -81,5 +76,4 @@ public class SecurityConfig  {
 
         return http.build();
     }
-
 }
